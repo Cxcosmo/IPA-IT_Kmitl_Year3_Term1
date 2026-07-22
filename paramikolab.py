@@ -1,5 +1,4 @@
 import paramiko
-import time
 
 devices = [
     {"host": "172.31.15.1", "name": "R0"},
@@ -10,7 +9,7 @@ devices = [
 ]
 
 username = "admin"
-pkey_path = "C:/Users/LAB308_XX/Desktop/67070066_IPA/PrivateKep_IPA.pem"
+pkey_path = "C:/Users/LAB308_XX/Desktop/67070066_IPA/PrivateKey_IPA"
 
 key = paramiko.RSAKey.from_private_key_file(pkey_path)
 
@@ -26,7 +25,8 @@ for dev in devices:
             username=username,
             pkey=key,
             look_for_keys=False,
-            allow_agent=False
+            allow_agent=False,
+            disabled_algorithms=dict(pubkeys=["rsa-sha2-256", "rsa-sha2-512"])
         )
         print(f"Successfully SSH to {dev['name']}")
         
