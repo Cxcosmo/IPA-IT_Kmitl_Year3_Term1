@@ -92,7 +92,13 @@ r2_commands = [
     "access-list 10 permit 172.31.15.0 0.0.0.15",
     "access-list 10 permit 10.30.6.0 0.0.0.255",
     "line vty 0 15",
-    "access-class 10 in"
+    "access-class 10 in",
+    "exit",
+    "ip dns server",
+    "ip domain-lookup",
+    "ip name-server vrf control-data 192.168.42.1"
+    "ip name-server vrf control-data 8.8.8.8",
+    "ip name-server vrf control-data 1.1.1.1",
 ]
 
 config_map = {
