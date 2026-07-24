@@ -1,0 +1,14 @@
+vlan {{ vlan_id }}
+name {{ vlan_name }}
+exit
+{% for intf in access_interfaces %}
+interface {{ intf }}
+switchport mode access
+switchport access vlan {{ vlan_id }}
+no shutdown
+{% endfor %}
+{% for net in acl_permit_networks %}
+access-list {{ acl_number }} permit {{ net.network }} {{ net.wildcard }}
+{% endfor %}
+line vty 0 15
+access-class {{ acl_number }} in
