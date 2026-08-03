@@ -1,3 +1,4 @@
+import json
 from netmiko import ConnectHandler
 
 USERNAME = "admin"
@@ -25,10 +26,15 @@ DESCRIPTIONS = {
     },
 }
 
+def save_to_json(results, filename="output.json"):
+    with open(filename, "w") as f:
+        json.dump(results, f, indent=4)
+
 def apply_descriptions():
+    results = []
     for name, host in DEVICES.items():
         print(f"Connecting to {name} ({host}) to apply descriptions...")
-        
+
         device_params = {
             "device_type": "cisco_ios",
             "host": host,
@@ -52,10 +58,23 @@ def apply_descriptions():
 
             output = conn.send_config_set(config_cmds)
             print(f"[{name}] Configuration applied successfully.")
+
+            results.append({
+                "device": name,
+                "status": "success",
+                "interfaces": DESCRIPTIONS[name]
+            })
             conn.disconnect()
 
         except Exception as e:
             print(f"[{name}] Failed to configure: {e}")
 
+            results.append({
+                "device": name,
+                "status": "failed",
+                "error": str(e)
+            })
+    save_to_json(results)
+    print("Saved result to output.json")
 if __name__ == "__main__":
     apply_descriptions()
