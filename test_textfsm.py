@@ -1,5 +1,8 @@
 import pytest
 from netmiko import ConnectHandler
+import os
+import json
+
 
 USERNAME = "admin"
 PKEY_PATH = "C:/Users/LAB308_XX/Desktop/67070066_IPA/PrivateKey_IPA"
@@ -55,3 +58,29 @@ def test_r2_interfaces(r2_descs):
     assert r2_descs["Gi0/1"] == "Connect to G0/2 of R1"
     assert r2_descs["Gi0/2"] == "Connect to G0/1 of S1"
     assert r2_descs["Gi0/3"] == "Connect to WAN"
+
+def test_output_json_exists():
+    assert os.path.exists("output.json")
+
+
+def test_output_json_format():
+
+    with open("output.json") as f:
+        data = json.load(f)
+
+    assert isinstance(data, list)
+
+
+def test_devices_exist():
+
+    with open("output.json") as f:
+        data = json.load(f)
+
+    devices = []
+
+    for item in data:
+        devices.append(item["device"])
+
+    assert "R1" in devices
+    assert "R2" in devices
+    assert "S1" in devices
