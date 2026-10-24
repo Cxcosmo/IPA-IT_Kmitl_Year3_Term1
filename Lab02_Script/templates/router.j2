@@ -1,0 +1,39 @@
+router ospf {{ mgmt_ospf_process }} vrf management
+network {{ mgmt_network }} {{ mgmt_wildcard }} area {{ mgmt_area }}
+exit
+router ospf {{ cd_ospf_process }} vrf control-data
+{% for net in cd_networks %}
+network {{ net.network }} {{ net.wildcard }} area {{ cd_area }}
+{% endfor %}
+{% if default_information_originate %}
+default-information originate always
+{% endif %}
+exit
+interface Loopback0
+ip ospf {{ cd_ospf_process }} area {{ cd_area }}
+exit
+{% if nat %}
+ip route vrf control-data 0.0.0.0 0.0.0.0 dhcp
+{% for intf in nat.inside_interfaces %}
+interface {{ intf }}
+ip nat inside
+{% endfor %}
+interface {{ nat.outside_interface }}
+ip nat outside
+exit
+access-list {{ nat.acl_number }} permit {{ nat.network }} {{ nat.wildcard }}
+ip nat inside source list {{ nat.acl_number }} interface {{ nat.outside_interface }} overload
+{% endif %}
+{% for net in acl_permit_networks %}
+access-list {{ acl_number }} permit {{ net.network }} {{ net.wildcard }}
+{% endfor %}
+line vty 0 15
+access-class {{ acl_number }} in
+exit
+{% if dns %}
+ip dns server
+ip domain-lookup
+{% for server in dns.servers %}
+ip name-server vrf {{ dns.vrf }} {{ server }}
+{% endfor %}
+{% endif %}
